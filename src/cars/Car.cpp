@@ -27,7 +27,7 @@ CCar::~CCar(void)
 
 }
 
-void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, float mass)
+void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, const irr::core::vector3df &position, float mass)
 {
 	scene::ISceneManager * smgr = m_world->getSceneManager();
 	
@@ -36,7 +36,7 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, floa
 	g.clean_chassis_texture = map;
 
 	// create scene node
-	m_chassis = smgr->addMeshSceneNode(mesh, smgr->getRootSceneNode());
+	m_chassis = smgr->addMeshSceneNode(mesh, smgr->getRootSceneNode(),-1, position);
 	m_chassis->setMaterialTexture(0, map);
 
 	// create physic model
@@ -50,7 +50,7 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, floa
 					
 	// create ODE stuff
 	p.chassis_body = dBodyCreate(m_world->getPhysicWorld());
-	dBodySetPosition(p.chassis_body, 0.0f, 0.0f, 0.0f);
+	dBodySetPosition(p.chassis_body, position.X, position.Y, position.Z);
 	dMassSetBox(&m, 1, car_width, car_height, car_lenght);
 	dMassAdjust(&m, mass);
 	dBodySetMass(p.chassis_body, &m);

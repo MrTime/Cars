@@ -85,7 +85,7 @@ public:
 	virtual ~CCar(void);
 
 	//! set clean chassis mesh and physic model
-	void	setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, float mass = CHASSIS_MASS);
+	void	setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, const irr::core::vector3df &position, float mass = CHASSIS_MASS);
 
 	//! set clean glass mesh
 	void	setGlass(irr::scene::IMesh * mesh, irr::video::ITexture * map = NULL);

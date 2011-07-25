@@ -23,7 +23,7 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 	m_world = dWorldCreate();
 	m_space = dHashSpaceCreate(0);
 	m_contactgroup = dJointGroupCreate(0);
-	dWorldSetGravity(m_world, 0.0, -0.1, 0.0);
+	dWorldSetGravity(m_world, 0.0f, -0.1f, 0.0f);
 	
 	// setup ambient lighting
 	m_scene_manager->setAmbientLight(video::SColorf(0.5f, 0.5f, 0.5f));
@@ -100,6 +100,7 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 
 CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &position,const irr::core::vector3df &rotation)
 {
+	core::vector3df node_position;
 	video::IVideoDriver *driver = m_scene_manager->getVideoDriver();
 	scene::IMeshCache * cache = m_scene_manager->getMeshCache();	
 
@@ -134,7 +135,9 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 				scene::IMesh * clean_model = cache->getMeshByName(dae_base + xml->getAttributeValue("model"));
 				video::ITexture * clean_diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
 
-				car->setChassis(clean_model, clean_diffuse_map);
+				sscanf(xml->getAttributeValue("position"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
+
+				car->setChassis(clean_model, clean_diffuse_map, node_position);
 
 				// load glass
 				scene::IMesh *glass = cache->getMeshByName(dae_base + xml->getAttributeValue("glass_model"));
@@ -158,21 +161,19 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 				scene::IMesh *wheel = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("model"));
 				video::ITexture *wheel_diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
 
-				core::vector3df wheel_pos;
-
 				car->setWheel(wheel, wheel_diffuse_map);
 				
-				sscanf(xml->getAttributeValue("f_l_wheel"), "%f %f %f", &wheel_pos.X, &wheel_pos.Y, &wheel_pos.Z);
-				car->addWheel(CCar::FRONT_LEFT, wheel_pos);
+				sscanf(xml->getAttributeValue("f_l_wheel"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
+				car->addWheel(CCar::FRONT_LEFT, node_position);
 				
-				sscanf(xml->getAttributeValue("f_r_wheel"), "%f %f %f", &wheel_pos.X, &wheel_pos.Y, &wheel_pos.Z);
-				car->addWheel(CCar::FRONT_RIGHT, wheel_pos);
+				sscanf(xml->getAttributeValue("f_r_wheel"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
+				car->addWheel(CCar::FRONT_RIGHT, node_position);
 				
-				sscanf(xml->getAttributeValue("b_l_wheel"), "%f %f %f", &wheel_pos.X, &wheel_pos.Y, &wheel_pos.Z);
-				car->addWheel(CCar::BACK_LEFT, wheel_pos);
+				sscanf(xml->getAttributeValue("b_l_wheel"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
+				car->addWheel(CCar::BACK_LEFT, node_position);
 				
-				sscanf(xml->getAttributeValue("b_r_wheel"), "%f %f %f", &wheel_pos.X, &wheel_pos.Y, &wheel_pos.Z);
-				car->addWheel(CCar::BACK_RIGHT, wheel_pos);
+				sscanf(xml->getAttributeValue("b_r_wheel"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
+				car->addWheel(CCar::BACK_RIGHT, node_position);
 			}
 		}
 	}
