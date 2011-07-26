@@ -57,10 +57,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	dInitODE2(0);
 	
 	CWorld *world = CWorld::create(smgr, device->getFileSystem());
-	CCar *car = world->addCar("../media/car5.xml", core::vector3df(0.0f, 0.0f, 0.0f));
+	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 0.0f, 0.0f));
 	
-	//CCar *dam_car = world->addCar("./media/car5.xml", core::vector3df(2.0f, 2.0f, 0.0f));
-	//car->damage();
+	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 0.0f, 0.0f));
+	dam_car->damage();
 	
 	// setup camera
 	scene::ICameraSceneNode * camera = smgr->addCameraSceneNodeFPS(0,100.0f,0.01f);
@@ -74,16 +74,34 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		// process keyboard clicks
 		if (receiver.IsKeyDown(irr::KEY_KEY_W))
+		{
 			car->accelerate();
+			dam_car->accelerate();
+		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_S))
+		{
 			car->slowdown();
+			dam_car->slowdown();
+		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_A))
+		{
 			car->turnLeft();
+			dam_car->turnLeft();
+		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_D))
+		{
 			car->turnRight();
+			dam_car->turnRight();
+		}
+		if (receiver.IsKeyDown(irr::KEY_KEY_R))
+		{
+			dam_car->setPosition(core::vector3df(0.0f, 3.0f, 0.0f));
+			dam_car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
+		}
 
 		//// apply car moving animation
 		car->animate();
+		dam_car->animate();
 
 		driver->beginScene(true, true, video::SColor(255,100,101,140));
 		smgr->drawAll();

@@ -163,38 +163,39 @@ void CCar::animate()
 void CCar::setPosition (const irr::core::vector3df &newpos) { 
 	assert(m_chassis != NULL);
 	
-	//matrix4 parentInvTransform;
-	//m_chassis->getAbsoluteTransformation().getInverse(parentInvTransform);
-	//
-	//matrix4 wheelRelativeTransforms[4];
+	// get wheels relative positions
+	vector3df parentPosition = m_chassis->getAbsolutePosition();
+	vector3df wheelRelativePositions[4];
+	vector3df wheelPosition;
 
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	matrix4 wheelTransform = m_wheel[i]->getAbsoluteTransformation();
-	//	wheelRelativeTransforms[i] = wheelTransform * parentInvTransform;
-	//}
+	for (int i = 0; i < 4; i++)
+		wheelRelativePositions[i] = m_wheel[i]->getAbsolutePosition() - parentPosition;
 
 	// set chassis position
 	m_chassis->setPosition(newpos);
 
-	// update bodies positions
-/*	vector3df chassis_body = m_chassis->getAbsolutePosition();
-	dBodySetPosition(p.chassis_body, chassis_body.X, chassis_body.Y, chassis_body.Z);
+	// update body positions
+	dBodySetPosition(p.chassis_body, newpos.X, newpos.Y, newpos.Z);
 
 	for (int i = 0; i < 4; i++)
 	{
-		m_wheel[i]->setPosition(wheelRelativeTransforms[i].getTranslation());
-		m_wheel[i]->setRotation(wheelRelativeTransforms[i].getRotationDegrees());
-		m_wheel[i]->updateAbsolutePosition();
-	
-		vector3df pos = m_wheel[i]->getAbsolutePosition();
-		dBodySetPosition(p.wheel_body[i], pos.X, pos.Y, pos.Z);
-	}*/
+		wheelPosition = newpos + wheelRelativePositions[i];
+		
+		// set wheel position
+		m_wheel[i]->setPosition(wheelPosition);
+		
+		// update body position
+		dBodySetPosition(p.wheel_body[i], wheelPosition.X, wheelPosition.Y, wheelPosition.Z);
+	}
 }
 
 void CCar::setRotation(const irr::core::vector3df &rotation)
 {
-
+	// update body transformation
+	core::quaternion q;
+	q.set(rotation);
+	dQuaternion q_arr = {q.W, q.X, q.Y, q.Z};	
+	dBodySetQuaternion(p.chassis_body, q_arr);
 }
 
 void CCar::turnRight(irr::s32 angle) { 
