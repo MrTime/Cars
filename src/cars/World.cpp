@@ -9,6 +9,35 @@ using namespace irr;
 using namespace irr::io;
 using namespace scene;
 
+/**
+*	Perform computing physics
+*/
+class CPhysicSceneAnimator :
+	public irr::scene::ISceneNodeAnimator
+{
+private:
+	CWorld *m_world;
+
+public:
+	CPhysicSceneAnimator(CWorld *world) : m_world(world) {}
+
+	//! Animates a scene node.
+	/** \param node Node to animate.
+	\param timeMs Current time in milli seconds. */
+	virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) {
+		m_world->animate((float)timeMs * 0.00001f);
+	}
+
+	//! Creates a clone of this animator.
+	/** Please note that you will have to drop
+	(IReferenceCounted::drop()) the returned pointer after calling this. */
+	virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* node,
+			irr::scene::ISceneManager* newManager=0) {
+		return (new CPhysicSceneAnimator(m_world));
+	}
+};
+
+
 CWorld * CWorld::m_instance = NULL;
 
 CWorld* CWorld::create(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)

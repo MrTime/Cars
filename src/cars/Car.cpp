@@ -6,6 +6,35 @@
 using namespace irr;
 using namespace irr::io;
 using namespace irr::core;
+using namespace scene;
+
+/**
+*	Perform computing physics
+*/
+class CCarAnimator :
+	public ISceneNodeAnimator
+{
+private:
+	CCar *m_car;
+
+public:
+	CCarAnimator(CCar *car) : m_car(car) {}
+
+	//! Animates a scene node.
+	/** \param node Node to animate.
+	\param timeMs Current time in milli seconds. */
+	virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) {
+		m_car->animate();
+	}
+
+	//! Creates a clone of this animator.
+	/** Please note that you will have to drop
+	(IReferenceCounted::drop()) the returned pointer after calling this. */
+	virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* node,
+			irr::scene::ISceneManager* newManager=0) {
+		return (new CCarAnimator(m_car));
+	}
+};
 
 CCar::CCar(CWorld *world) 
 	: m_world(world), m_chassis(0), m_glass(0), m_damaged(false), m_speed(0.0f), m_steer(0.0f)
@@ -65,7 +94,12 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, cons
 	dSpaceAdd(p.car_space, p.chassis_geom);
 
 	// attach animator
-	CPhysicAnimator * animator = new CPhysicAnimator(p.chassis_geom);
+	ISceneNodeAnimator * animator = new CPhysicAnimator(p.chassis_geom);
+	m_chassis->addAnimator(animator);
+	animator->drop();
+
+	// create car animator
+	animator = new CCarAnimator(this);
 	m_chassis->addAnimator(animator);
 	animator->drop();
 }

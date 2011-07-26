@@ -99,10 +99,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			dam_car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
 		}
 
-		//// apply car moving animation
-		car->animate();
-		dam_car->animate();
-
 		driver->beginScene(true, true, video::SColor(255,100,101,140));
 		smgr->drawAll();
 		driver->endScene();
