@@ -37,6 +37,8 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, cons
 
 	// create scene node
 	m_chassis = smgr->addMeshSceneNode(mesh, smgr->getRootSceneNode(),-1, position);
+
+	m_chassis->setName(m_name + "_chassis");
 	m_chassis->setMaterialTexture(0, map);
 
 	// create physic model
@@ -50,6 +52,7 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, cons
 					
 	// create ODE stuff
 	p.chassis_body = dBodyCreate(m_world->getPhysicWorld());
+	dBodySetData(p.chassis_body, (void*)m_chassis);
 	dBodySetPosition(p.chassis_body, position.X, position.Y, position.Z);
 	dMassSetBox(&m, 1, car_width, car_height, car_lenght);
 	dMassAdjust(&m, mass);
@@ -77,6 +80,7 @@ void CCar::setGlass(irr::scene::IMesh * mesh, irr::video::ITexture * map)
 
 	// create scene node
 	m_glass = smgr->addMeshSceneNode(mesh, m_chassis);
+	m_glass->setName(m_name + "_glass");	
 	m_glass->setMaterialTexture(0, g.getGlassTexture());
 	m_glass->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
 }
@@ -88,6 +92,7 @@ void CCar::addWheel(EWheel id, const irr::core::vector3df &position, float mass)
 	// create scene node
 	m_wheel[id] = smgr->addMeshSceneNode(g.wheel, smgr->getRootSceneNode(), -1, position);
 	m_wheel[id]->setMaterialTexture(0, g.wheel_texture);
+	m_wheel[id]->setName(m_name + "_wheel");	
 
 	// create physic stuff
 	dMass m;
@@ -97,6 +102,7 @@ void CCar::addWheel(EWheel id, const irr::core::vector3df &position, float mass)
 
 	// create body
 	dBodyID wheel_body = p.wheel_body[id] = dBodyCreate(m_world->getPhysicWorld());
+	dBodySetData(wheel_body, (void*)m_wheel[id]);
 	dQuaternion q;
 	dQFromAxisAndAngle(q, 1, 0, 0, M_PI*0.5);
 	dBodySetQuaternion(wheel_body, q);

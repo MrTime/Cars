@@ -14,6 +14,7 @@ class CWorld;
 */
 class CCar
 {
+	irr::core::stringc			m_name;
 	CWorld						*m_world;
 
 	irr::scene::IMeshSceneNode	*m_chassis,
@@ -83,6 +84,9 @@ public:
 
 	//! clean all resources
 	virtual ~CCar(void);
+
+	inline void				setName(irr::core::stringc name)	{ m_name = name; }
+	inline const irr::c8*	getName() const						{ return m_name.c_str(); }
 
 	//! set clean chassis mesh and physic model
 	void	setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, const irr::core::vector3df &position, float mass = CHASSIS_MASS);
