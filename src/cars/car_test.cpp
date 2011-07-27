@@ -57,9 +57,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	dInitODE2(0);
 	
 	CWorld *world = CWorld::create(smgr, device->getFileSystem());
-	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 0.0f, 0.0f));
 	
-	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 0.0f, 0.0f));
+	world->loadScene("../media/street.xml");
+	
+	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 10.0f, 0.0f));
+	
+	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 10.0f, 0.0f));
 	dam_car->damage();
 	
 	// setup camera

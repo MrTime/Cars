@@ -30,12 +30,25 @@ private:
 	//! Create new shader material
 	void	createGroundMaterial();
 
+	//! load graphic and physic part of scene node
+	void	loadSceneNode(const irr::io::IXMLReader * reader, irr::scene::IMeshCache * cache);
+
+	//! create ODE box based on AABB
+	dGeomID	createPhysicBox(const irr::scene::IMesh * mesh, const irr::core::vector3df &pos);
+
+	//! create ODE TriMesh based on IMesh
+	dGeomID	createPhysicMesh(const irr::scene::IMesh * mesh, const irr::core::vector3df &pos);
+
+	//! Constructor
 	CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs);
 public:
 	//! create single instance of world
 	static CWorld*	create(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs);
 	//! destroy world
 	virtual ~CWorld(void);
+
+	//! load scene from XML
+	bool								loadScene(const irr::io::path &path);
 
 	void								animate(float time);
 

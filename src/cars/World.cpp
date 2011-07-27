@@ -110,23 +110,23 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 															core::dimension2d<f32>(0.0f,0.0f), 
 															core::dimension2d<f32>(1.0f,1.0f));
 
-	// create shader material
-	createGroundMaterial();
+	//// create shader material
+	//createGroundMaterial();
 
-	// load road texture
-	video::ITexture * road_map = driver->getTexture("../media/general_map.png");
-	
-	scene::IMeshSceneNode * ground = smgr->addMeshSceneNode(ground_mesh);
-	ground->setPosition(core::vector3df(0.0f, -1.0f, 0.0f));
-	ground->setMaterialTexture(0, driver->getTexture("../media/map.png"));
-	ground->setMaterialTexture(1, driver->getTexture("../media/general_map.png"));
-	ground->setMaterialFlag(video::EMF_LIGHTING, false);
-	ground->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false);
-	ground->setMaterialFlag(video::EMF_BILINEAR_FILTER, false);
-	ground->setMaterialType((video::E_MATERIAL_TYPE)m_ground_material);
+	//// load road texture
+	//video::ITexture * road_map = driver->getTexture("../media/general_map.png");
+	//
+	//scene::IMeshSceneNode * ground = smgr->addMeshSceneNode(ground_mesh);
+	//ground->setPosition(core::vector3df(0.0f, 0.0f, 0.0f));
+	//ground->setMaterialTexture(0, driver->getTexture("../media/map.png"));
+	//ground->setMaterialTexture(1, driver->getTexture("../media/general_map.png"));
+	//ground->setMaterialFlag(video::EMF_LIGHTING, false);
+	//ground->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false);
+	//ground->setMaterialFlag(video::EMF_BILINEAR_FILTER, false);
+	//ground->setMaterialType((video::E_MATERIAL_TYPE)m_ground_material);
 
-	// create ground physic model
-	m_ground = dCreatePlane(m_space, 0,1,0,-1);
+	//// create ground physic model
+	//m_ground = dCreatePlane(m_space, 0,1,0,0);
 
 	// create scene animator
 	CPhysicSceneAnimator * animator = new CPhysicSceneAnimator(this);
@@ -285,4 +285,150 @@ void CWorld::animate(float time)
 	dSpaceCollide(m_space, 0, &collusionCallback);
 	dWorldStep(m_world, time);
 	dJointGroupEmpty(m_contactgroup);
+}
+
+//! create ODE box based on AABB
+dGeomID	CWorld::createPhysicBox(const irr::scene::IMesh * mesh, const vector3df &pos)
+{
+	const irr::core::aabbox3df &aabb = mesh->getBoundingBox();
+	irr::core::vector3df extend = aabb.getExtent();
+	
+	dGeomID box = dCreateBox(m_space, extend.X, extend.Y, extend.Z);
+	dGeomSetPosition(box, pos.X, pos.Y, pos.Z);
+
+	return box;
+}
+
+//! create ODE TriMesh based on IMesh
+dGeomID	CWorld::createPhysicMesh(const irr::scene::IMesh * mesh, const vector3df &pos){
+	// do nothing if the mesh or node is NULL
+	if(!mesh) return NULL; 
+	u32 i,j,ci,cif,cv;
+	u32 indexcount=0;
+	u32 vertexcount=0;
+	
+	// count vertices and indices
+	for(i=0;i < mesh->getMeshBufferCount();i++){
+		irr::scene::IMeshBuffer* mb = mesh->getMeshBuffer(i);
+		indexcount += mb->getIndexCount();
+		vertexcount += mb->getVertexCount();
+	}
+	
+	// build structure for ode trimesh geom
+	dVector3 * vertices=new dVector3[vertexcount];
+	dTriIndex * indices=new dTriIndex[indexcount];
+	
+	// fill trimesh geom
+	ci=0; // current index in the indices array
+	cif=0; // offset of the irrlicht-vertex-index in the vetices array 
+	cv=0; // current index in the vertices array
+	for(i=0;i< mesh->getMeshBufferCount();i++){
+		irr::scene::IMeshBuffer* mb = mesh->getMeshBuffer(i);
+	
+		// fill indices
+		irr::u16* mb_indices=mb->getIndices();
+		for(j=0; j < mb->getIndexCount(); j++){
+			// scale the indices from multiple meshbuffers to single index array
+			indices[ci]=cif+mb_indices[j];
+			ci++;
+		}
+		// update the offset for the next meshbuffer
+		cif=cif+mb->getVertexCount();
+		// fill vertices
+		if(mb->getVertexType()==irr::video::EVT_STANDARD){
+			irr::video::S3DVertex* mb_vertices = (irr::video::S3DVertex*)mb->getVertices();
+			for(j=0;j<mb->getVertexCount();j++){
+				vertices[cv][0]=mb_vertices[j].Pos.X;
+				vertices[cv][1]=mb_vertices[j].Pos.Y;
+				vertices[cv][2]=mb_vertices[j].Pos.Z;
+				cv++;
+			} 
+		}
+		else 
+		if(mb->getVertexType()==irr::video::EVT_2TCOORDS){
+			irr::video::S3DVertex2TCoords* mb_vertices=(irr::video::S3DVertex2TCoords*)mb->getVertices();
+			for(j=0;j<mb->getVertexCount();j++){
+				vertices[cv][0]=mb_vertices[j].Pos.X;
+				vertices[cv][1]=mb_vertices[j].Pos.Y;
+				vertices[cv][2]=mb_vertices[j].Pos.Z;
+				cv++;
+			}    
+		} 
+	}
+	// build the trimesh data
+	dTriMeshDataID data=dGeomTriMeshDataCreate();
+	dGeomTriMeshDataBuildSimple(data,(dReal*)vertices, vertexcount, indices, indexcount);
+	
+	// build the trimesh geom 
+	dGeomID geom=dCreateTriMesh(m_space,data,0,0,0);
+	
+	// set the geom position 
+	dGeomSetPosition(geom,pos.X,pos.Y,pos.Z);
+	
+	return geom;	
+}
+
+bool CWorld::loadScene(const irr::io::path &path)
+{
+	core::vector3df pos, rot, scale;
+	video::IVideoDriver *driver = m_scene_manager->getVideoDriver();
+	scene::IMeshCache * cache = m_scene_manager->getMeshCache();	
+
+	// create xml reader object
+	IrrXMLReader *xml = createIrrXMLReader(path.c_str());
+
+	if (!xml)
+		return false;
+
+	// get directory of file, this will be used during loading resources from that file
+	irr::io::path directory =  path.subString(0, path.findLastChar("/",1)+1);
+	irr::io::path dae_path, dae_base;
+
+	// read xml elements
+	while (xml->read())
+	{
+		if (xml->getNodeType() == EXN_ELEMENT)
+		{
+			if (strcmp(xml->getNodeName(), "collada") == 0)
+			{
+				dae_path = m_file_system->getAbsolutePath(directory + xml->getAttributeValue("path"));
+				dae_base = dae_path + "#geom-";
+
+				m_scene_manager->getMesh(dae_path);
+			}
+			else
+			if (strcmp(xml->getNodeName(), "node") == 0)
+			{
+				// load damaged car
+				scene::IMesh * model = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("model"));
+				scene::IMesh * collusion_model = model;
+				video::ITexture * diffuse_map = NULL;
+				
+				if (xml->getAttributeValue("diffuse_map"))
+					diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
+				
+				// load collusion model
+				if (xml->getAttributeValue("collusion_model"))
+					collusion_model = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("collusion_model"));
+				
+				sscanf(xml->getAttributeValue("position"), "%f %f %f", &pos.X,&pos.Y,&pos.Z);
+				sscanf(xml->getAttributeValue("rotation"), "%f %f %f", &rot.X,&rot.Y,&rot.Z);
+				sscanf(xml->getAttributeValue("scale"), "%f %f %f", &scale.X,&scale.Y,&scale.Z);
+
+				IMeshSceneNode * node = m_scene_manager->addMeshSceneNode(model,0,-1,pos, rot, scale);
+				node->setName(xml->getAttributeValue("name"));
+				if (diffuse_map)
+					node->setMaterialTexture(0, diffuse_map);
+
+				if (strcmp(xml->getAttributeValue("geom"), "trimesh") == 0)
+					createPhysicMesh(collusion_model, pos);
+				else
+					createPhysicBox(collusion_model, pos);
+			}			
+		}
+	}
+
+	delete xml;
+
+	return true;
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<world>
+  <collada path="street.dae"/>
+  <node  name="Ground" 
+         model="ground"
+         position="0.0 0.0 0.0"
+         rotation="0.0 0.0 0.0"
+         scale="1.0 1.0 1.0"
+         geom="trimesh"/>
+
+  <node  name="Wall"
+         model="wall"
+         position="10.0 0.0 10.0"
+         rotation="0.0 0.0 0.0"
+         scale="1.0 1.0 1.0"
+         geom="trimesh"/>
+</world>
