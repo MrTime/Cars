@@ -294,7 +294,7 @@ dGeomID	CWorld::createPhysicBox(const irr::scene::IMesh * mesh, const vector3df 
 	irr::core::vector3df extend = aabb.getExtent();
 	
 	dGeomID box = dCreateBox(m_space, extend.X, extend.Y, extend.Z);
-	dGeomSetPosition(box, pos.X, pos.Y, pos.Z);
+	dGeomSetPosition(box, pos.X, pos.Y+extend.Y*0.5, pos.Z);
 
 	return box;
 }
@@ -420,7 +420,7 @@ bool CWorld::loadScene(const irr::io::path &path)
 				if (diffuse_map)
 					node->setMaterialTexture(0, diffuse_map);
 
-				if (strcmp(xml->getAttributeValue("geom"), "trimesh") == 0)
+				if (xml->getAttributeValue("geom") && (strcmp(xml->getAttributeValue("geom"), "trimesh") == 0))
 					createPhysicMesh(collusion_model, pos);
 				else
 					createPhysicBox(collusion_model, pos);
