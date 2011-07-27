@@ -22,8 +22,13 @@ private:
 
 	irr::core::list<CCar*>		m_cars;
 
+	irr::s32					m_ground_material;
+
 	//! collusion callback
 	static void collusionCallback(void *data, dGeomID o1, dGeomID o2);
+	
+	//! Create new shader material
+	void	createGroundMaterial();
 
 	CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs);
 public:

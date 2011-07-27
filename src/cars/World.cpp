@@ -8,6 +8,7 @@
 using namespace irr;
 using namespace irr::io;
 using namespace scene;
+using namespace core;
 
 /**
 *	Perform computing physics
@@ -40,6 +41,40 @@ public:
 
 CWorld * CWorld::m_instance = NULL;
 
+class GroundShaderCallBack : public video::IShaderConstantSetCallBack
+{
+public:
+
+        virtual void OnSetConstants(video::IMaterialRendererServices* services,
+                        s32 userData)
+        {
+                video::IVideoDriver* driver = services->getVideoDriver();
+               
+                // set clip matrix
+                core::matrix4 worldViewProj;
+                worldViewProj = driver->getTransform(video::ETS_PROJECTION);
+                worldViewProj *= driver->getTransform(video::ETS_VIEW);
+                worldViewProj *= driver->getTransform(video::ETS_WORLD);
+
+                services->setVertexShaderConstant("mWorldViewProj", worldViewProj.pointer(), 16);
+                
+                // set index map steps variables
+				vector3df indexSteps(16.0f, 16.0f,0.0f);
+				services->setVertexShaderConstant("index_steps", &indexSteps.X, 2);
+                
+				// set map steps variables
+				vector3df steps(4.0f, 4.0f,0.0f);
+				services->setVertexShaderConstant("steps", &steps.X, 2);      
+
+				// set samplers
+				int sampler = 0;
+				services->setVertexShaderConstant("indexMap", (const f32*)&sampler, 1);   
+
+				sampler = 1;
+				services->setVertexShaderConstant("map", (const f32*)&sampler, 1);   
+        }
+};
+
 CWorld* CWorld::create(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)
 {
 	return (m_instance ? m_instance : (m_instance = new CWorld(smgr, fs)));
@@ -69,15 +104,26 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 														  driver->getTexture("../media/irrlicht2_bk.jpg"));
 
 	// create ground
-	scene::IAnimatedMesh * ground_mesh = smgr->addHillPlaneMesh("ground", core::dimension2d<f32>(5.0f, 5.0f), 
-															core::dimension2d<u32>(10, 10),
+	scene::IAnimatedMesh * ground_mesh = smgr->addHillPlaneMesh("ground", core::dimension2d<f32>(50.0f, 50.0f), 
+															core::dimension2d<u32>(1, 1),
 															0,0.0f,
 															core::dimension2d<f32>(0.0f,0.0f), 
-															core::dimension2d<f32>(10.0f,10.0f));
+															core::dimension2d<f32>(1.0f,1.0f));
+
+	// create shader material
+	createGroundMaterial();
+
+	// load road texture
+	video::ITexture * road_map = driver->getTexture("../media/general_map.png");
+	
 	scene::IMeshSceneNode * ground = smgr->addMeshSceneNode(ground_mesh);
 	ground->setPosition(core::vector3df(0.0f, -1.0f, 0.0f));
-	ground->setMaterialTexture(0, driver->getTexture("../media/grass.jpg"));
-	ground->setMaterialFlag(video::EMF_LIGHTING, false);	
+	ground->setMaterialTexture(0, driver->getTexture("../media/map.png"));
+	ground->setMaterialTexture(1, driver->getTexture("../media/general_map.png"));
+	ground->setMaterialFlag(video::EMF_LIGHTING, false);
+	ground->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false);
+	ground->setMaterialFlag(video::EMF_BILINEAR_FILTER, false);
+	ground->setMaterialType((video::E_MATERIAL_TYPE)m_ground_material);
 
 	// create ground physic model
 	m_ground = dCreatePlane(m_space, 0,1,0,-1);
@@ -101,6 +147,18 @@ CWorld::~CWorld(void)
 	dWorldDestroy(m_world);
 
 	m_instance = NULL;
+}
+
+void CWorld::createGroundMaterial()
+{
+	video::IGPUProgrammingServices * gpu = m_scene_manager->getVideoDriver()->getGPUProgrammingServices();
+
+	GroundShaderCallBack * gc = new GroundShaderCallBack();
+
+	m_ground_material = gpu->addHighLevelShaderMaterialFromFiles(m_file_system->getAbsolutePath("../media/ground.vert"),"main",video::EVST_VS_1_1,
+																 m_file_system->getAbsolutePath("../media/ground.frag"),"main",video::EPST_PS_2_0,
+																 gc, video::EMT_SOLID);
+	gc->drop();
 }
 
 void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)

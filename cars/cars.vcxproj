@@ -42,12 +42,14 @@
     <ExecutablePath>D:\dev\irrlicht-1.7.2\bin\Win32-VisualStudio;D:\dev\ode-0.11.1\lib\ReleaseSingleDLL;$(ExecutablePath)</ExecutablePath>
     <IncludePath>D:\dev\ode-0.11.1\include;D:\dev\irrlicht-1.7.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\dev\ode-0.11.1\lib\ReleaseSingleDLL;D:\dev\irrlicht-1.7.2\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
+    <SourcePath>D:\dev\irrlicht-1.7.2\source\Irrlicht;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>D:\dev\irrlicht-1.7.2\bin\Win32-VisualStudio;D:\dev\ode-0.11.1\lib\ReleaseSingleDLL;$(ExecutablePath)</ExecutablePath>
     <IncludePath>D:\dev\ode-0.11.1\include;D:\dev\irrlicht-1.7.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\dev\ode-0.11.1\lib\ReleaseSingleDLL;D:\dev\irrlicht-1.7.2\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
+    <SourcePath>D:\dev\irrlicht-1.7.2\source\Irrlicht;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,6 +98,8 @@
     <None Include="..\media\car5.xml">
       <SubType>Designer</SubType>
     </None>
+    <None Include="..\media\ground.frag" />
+    <None Include="..\media\ground.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
