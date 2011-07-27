@@ -998,7 +998,7 @@ Pass 0]]></RmTextDataBlock></RmStringVariable>
     </RmRegistryBranch>
     <RmRegistryBranch NAME="WORKSPACE" API="" XML_VERSION="RenderMonkey 1.71">
      <RmStringVariable NAME="LAST_SAVE" API="" ARTIST_EDITABLE="FALSE" VARIABLE_SEMANTIC=""><RmTextDataBlock TYPE="TEXT"><![CDATA[
-27/7/2011 11:25:54]]></RmTextDataBlock></RmStringVariable>
+27/7/2011 11:55:39]]></RmTextDataBlock></RmStringVariable>
      <RmStringVariable NAME="VERSION" API="" ARTIST_EDITABLE="FALSE" VARIABLE_SEMANTIC=""><RmTextDataBlock TYPE="TEXT"><![CDATA[
 RenderMonkey Version 1.82 (build 322)]]></RmTextDataBlock></RmStringVariable>
      <RmStringVariable NAME="XML_VERSION" API="" ARTIST_EDITABLE="FALSE" VARIABLE_SEMANTIC=""><RmTextDataBlock TYPE="TEXT"><![CDATA[
@@ -1065,9 +1065,16 @@ void main(void)
    // Z coord is codded as following:
    //   z = x_inv * 0.5 + y_inv * 0.25
    // where x_inv & y_inv may be 0 or 1
-   float x_inv = floor(index.z / 0.5);
-   if (x_inv > 0.0) in_sector_coord.x = 1.0 - in_sector_coord.x;
-   if (index.z - x_inv > 0.0) in_sector_coord.y = 1.0 - in_sector_coord.y;
+   //float x_inv = floor(index.z / 0.5);
+   //if (x_inv > 0.0) in_sector_coord.x = 1.0 - in_sector_coord.x;
+   //if (index.z - x_inv > 0.0) in_sector_coord.y = 1.0 - in_sector_coord.y;
+   vec2 inv_coef;
+   inv_coef.s = floor(index.z / 0.5);
+   inv_coef.t = (index.z - inv_coef.s * 0.5) / 0.25;    
+   vec2 not_inv_coef = abs(inv_coef - vec2(1.0)); 
+   // r = x * (1.0 - a) + y * a
+   // not_inv_coef = inv_coef * (1.0 - in_sector_coord) + not_inv_coef * in_sector_coord   
+   in_sector_coord = mix(inv_coef,not_inv_coef,in_sector_coord);         
           
    vec2 map_coord = index.xy + in_sector_coord * step; 
      
