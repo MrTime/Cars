@@ -70,7 +70,10 @@ class CCar
 	bool						m_damaged;
 
 	float						m_speed,
-								m_steer;
+								m_steer,
+								m_acceleration,
+								m_steer_acceleration,
+								m_max_speed;
 public:
 	enum EWheel {
 		FRONT_LEFT = 0,

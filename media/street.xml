@@ -14,4 +14,10 @@
          rotation="0.0 0.0 0.0"
          scale="1.0 1.0 1.0"
          geom="aabb"/>
+  <node  name="Wall2"
+         model="wall"
+         position="10.0 0.0 -10.0"
+         rotation="0.0 0.0 0.0"
+         scale="1.0 1.0 1.0"
+         geom="aabb"/>
 </world>

@@ -100,7 +100,9 @@
     </None>
     <None Include="..\media\ground.frag" />
     <None Include="..\media\ground.vert" />
-    <None Include="..\media\street.xml" />
+    <None Include="..\media\street.xml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

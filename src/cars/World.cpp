@@ -294,7 +294,7 @@ dGeomID	CWorld::createPhysicBox(const irr::scene::IMesh * mesh, const vector3df 
 	irr::core::vector3df extend = aabb.getExtent();
 	
 	dGeomID box = dCreateBox(m_space, extend.X, extend.Y, extend.Z);
-	dGeomSetPosition(box, pos.X, pos.Y+extend.Y*0.5, pos.Z);
+	dGeomSetPosition(box, pos.X, pos.Y+extend.Y*0.5f, pos.Z);
 
 	return box;
 }

@@ -37,7 +37,7 @@ public:
 };
 
 CCar::CCar(CWorld *world) 
-	: m_world(world), m_chassis(0), m_glass(0), m_damaged(false), m_speed(0.0f), m_steer(0.0f)
+	: m_world(world), m_chassis(0), m_glass(0), m_damaged(false), m_speed(0.0f), m_steer(0.0f), m_acceleration(0.0), m_steer_acceleration(0.0), m_max_speed(3.0)
 {
 	memset(m_wheel, 0, sizeof(irr::scene::IMeshSceneNode*)*4);
 
@@ -179,6 +179,33 @@ void CCar::addWheel(EWheel id, const irr::core::vector3df &position, float mass)
 
 void CCar::animate()
 {
+	if (m_steer_acceleration == 0.0f)
+	{
+		float val = 0.01f;
+
+		if (abs(m_steer) < 0.01f)
+			val = m_steer;
+
+		if (m_steer > 0.0f)
+			m_steer_acceleration = -val;
+		else if (m_steer < 0.0f)
+			m_steer_acceleration = val;
+	}
+	
+	m_acceleration += 0.005f * -m_speed * 0.1f;
+
+	m_speed += m_acceleration;
+	m_steer += m_steer_acceleration;
+
+	if (m_steer > 30 * core::DEGTORAD)
+		m_steer = 30 * core::DEGTORAD;
+	else
+	if (m_steer < -30 * core::DEGTORAD)
+		m_steer = -30 * core::DEGTORAD;
+
+	m_acceleration = 0.0f;
+	m_steer_acceleration = 0.0f;
+
 	for (int i = 0; i < 2; i++)
 	{
 		// motor
@@ -239,21 +266,17 @@ void CCar::setRotation(const irr::core::vector3df &rotation)
 }
 
 void CCar::turnRight(irr::s32 angle) { 
-	m_steer -= 0.03f; 
-	if (m_steer < -1.0f)
-		m_steer = -1.0f;
+	m_steer_acceleration = -0.01f;
 }
 void CCar::turnLeft(irr::s32 angle) { 
-	m_steer += 0.03f; 
-	if (m_steer > 1.0f)
-		m_steer = 1.0f;
+	m_steer_acceleration = 0.01f;
 }
 
 void CCar::accelerate(irr::s32 force) { 
-	m_speed += 0.03f; 
+	m_acceleration = 0.01f * ((m_max_speed - m_speed) / m_max_speed); 
 }
 void CCar::slowdown(irr::s32 force) { 
-	m_speed -= 0.03f; 
+	m_acceleration = -0.003f; 
 }
 
 //! set car looking as damaged

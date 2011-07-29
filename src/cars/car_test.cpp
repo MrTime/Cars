@@ -60,15 +60,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	world->loadScene("../media/street.xml");
 	
-	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 10.0f, 0.0f));
-	
-	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 10.0f, 0.0f));
+	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 2.0f, 0.0f));	
+	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 2.0f, 0.0f));
 	dam_car->damage();
 	
 	// setup camera
 	scene::ICameraSceneNode * camera = smgr->addCameraSceneNodeFPS(0,100.0f,0.01f);
 	//scene::ICameraSceneNode * camera = smgr->addCameraSceneNode();
-	camera->setPosition(core::vector3df(0.0f, 0.0f, -4.0f));
+	camera->setPosition(core::vector3df(0.0f, 10.0f, -4.0f));
 	camera->setTarget(core::vector3df(0.0f, 0.0f, 0.0f));
 
 	device->getCursorControl()->setVisible(false);
