@@ -12,6 +12,7 @@
 #endif
 
 using namespace irr;
+using namespace core;
 
 class MyEventReceiver : public IEventReceiver
 {
@@ -37,6 +38,22 @@ public:
 private:
 	bool KeyIsDown[KEY_KEY_CODES_COUNT];
 };
+
+void animateCamera(irr::scene::ICameraSceneNode * camera, CCar * car)
+{
+	const matrix4 &car_transform = car->getChassis()->getAbsoluteTransformation();
+
+	vector3df new_camera_position,
+				car_target(0.0f, 0.0f, -2.0f),
+				behind_car(0.0f, 0.0f, 3.0f);
+	car_transform.transformVect(car_target); 
+	car_transform.transformVect(behind_car); 
+
+	new_camera_position = car_target + (behind_car - car->getPosition()) * 2.0f + vector3df(0.0f, 1.0f, 0.0f);
+
+	camera->setPosition(new_camera_position);
+	camera->setTarget(car->getPosition());
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -65,10 +82,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	dam_car->damage();
 	
 	// setup camera
-	scene::ICameraSceneNode * camera = smgr->addCameraSceneNodeFPS(0,100.0f,0.01f);
-	//scene::ICameraSceneNode * camera = smgr->addCameraSceneNode();
-	camera->setPosition(core::vector3df(0.0f, 10.0f, -4.0f));
-	camera->setTarget(core::vector3df(0.0f, 0.0f, 0.0f));
+	//scene::ICameraSceneNode * camera = smgr->addCameraSceneNodeFPS(0,100.0f,0.01f);
+	scene::ICameraSceneNode * camera = smgr->addCameraSceneNode();
+	//camera->setPosition(core::vector3df(0.0f, 10.0f, -4.0f));
+	//camera->setTarget(core::vector3df(0.0f, 0.0f, 0.0f));
 
 	device->getCursorControl()->setVisible(false);
 
@@ -97,9 +114,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_R))
 		{
-			dam_car->setPosition(core::vector3df(0.0f, 3.0f, 0.0f));
-			dam_car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
+			car->setPosition(core::vector3df(0.0f, 3.0f, 0.0f));
+			car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
 		}
+
+		animateCamera(camera, car);
 
 		driver->beginScene(true, true, video::SColor(255,100,101,140));
 		smgr->drawAll();

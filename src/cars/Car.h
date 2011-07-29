@@ -134,6 +134,9 @@ public:
 	//! set chassis rotation
 	void								setRotation (const irr::core::vector3df &rotation);
 
+	//! get chassis scene node
+	const irr::scene::IMeshSceneNode *	getChassis() const { return m_chassis; }
+
 	//! animate car moving
 	void animate();
 
