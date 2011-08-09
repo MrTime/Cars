@@ -89,6 +89,8 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, cons
 
 	p.chassis_geom = dCreateBox(0, car_width, car_height, car_lenght);
 	dGeomSetBody(p.chassis_geom, p.chassis_body);
+	
+	dGeomSetData(p.chassis_geom, this);
 
 	// add geom into space
 	dSpaceAdd(p.car_space, p.chassis_geom);
@@ -206,7 +208,7 @@ void CCar::animate()
 	m_acceleration = 0.0f;
 	m_steer_acceleration = 0.0f;
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		// motor
 		dJointSetHinge2Param (p.joint[i],dParamVel2, m_speed);

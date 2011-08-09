@@ -77,9 +77,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	world->loadScene("../media/street.xml");
 	
-	CCar *car = world->addCar("../media/car5.xml", core::vector3df(4.0f, 2.0f, 0.0f));	
-	CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 2.0f, 0.0f));
-	dam_car->damage();
+	CCar *car = world->addCar("../media/car5.xml", core::vector3df(0.0f, 2.0f, 0.0f));	
+	//CCar *dam_car = world->addCar("../media/car5.xml", core::vector3df(0.5f, 2.0f, 0.0f));
 	
 	// setup camera
 	//scene::ICameraSceneNode * camera = smgr->addCameraSceneNodeFPS(0,100.0f,0.01f);
@@ -95,27 +94,28 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (receiver.IsKeyDown(irr::KEY_KEY_W))
 		{
 			car->accelerate();
-			dam_car->accelerate();
+			//dam_car->accelerate();
 		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_S))
 		{
 			car->slowdown();
-			dam_car->slowdown();
+			//dam_car->slowdown();
 		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_A))
 		{
 			car->turnLeft();
-			dam_car->turnLeft();
+			//dam_car->turnLeft();
 		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_D))
 		{
 			car->turnRight();
-			dam_car->turnRight();
+			//dam_car->turnRight();
 		}
 		if (receiver.IsKeyDown(irr::KEY_KEY_R))
 		{
-			car->setPosition(core::vector3df(0.0f, 3.0f, 0.0f));
-			car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
+			car->setPosition(core::vector3df(0.0f, 2.0f, 0.0f));
+
+			//car->setRotation(core::vector3df(0.0f, 45.0f, 0.0f));	
 		}
 
 		animateCamera(camera, car);

@@ -88,7 +88,7 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 	m_world = dWorldCreate();
 	m_space = dHashSpaceCreate(0);
 	m_contactgroup = dJointGroupCreate(0);
-	dWorldSetGravity(m_world, 0.0f, -0.1f, 0.0f);
+	dWorldSetGravity(m_world, 0.0f, -0.025f, 0.0f);
 	
 	// setup ambient lighting
 	m_scene_manager->setAmbientLight(video::SColorf(0.5f, 0.5f, 0.5f));
@@ -178,6 +178,18 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 			contact[i].surface.soft_cfm = 0.3f;
 			dJointID c = dJointCreateContact(m_instance->m_world,m_instance->m_contactgroup,&contact[i]);
 			dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
+
+			if (dGeomGetBody(contact[i].geom.g1) != NULL)
+			{
+				CCar * car = (CCar*)dBodyGetData(dGeomGetBody(contact[i].geom.g1));
+				//car->damage();
+			}
+
+			if (dGeomGetData(contact[i].geom.g2) != NULL)
+			{
+				CCar * car = (CCar*)dBodyGetData(dGeomGetBody(contact[i].geom.g2));
+				//car->damage();
+			}
 		}
 	}
 }
@@ -370,7 +382,6 @@ dGeomID	CWorld::createPhysicMesh(const irr::scene::IMesh * mesh, const vector3df
 
 bool CWorld::loadScene(const irr::io::path &path)
 {
-	core::vector3df pos, rot, scale;
 	video::IVideoDriver *driver = m_scene_manager->getVideoDriver();
 	scene::IMeshCache * cache = m_scene_manager->getMeshCache();	
 
@@ -410,12 +421,42 @@ bool CWorld::loadScene(const irr::io::path &path)
 				// load collusion model
 				if (xml->getAttributeValue("collusion_model"))
 					collusion_model = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("collusion_model"));
+								
+				core::vector3df pos(0.0f, 0.0f, 0.0f), 
+							    rot(0.0f, 0.0f, 0.0f), 
+								scale(1.0f, 1.0f, 1.0f);
+				ISceneNode * node;
 				
-				sscanf(xml->getAttributeValue("position"), "%f %f %f", &pos.X,&pos.Y,&pos.Z);
-				sscanf(xml->getAttributeValue("rotation"), "%f %f %f", &rot.X,&rot.Y,&rot.Z);
-				sscanf(xml->getAttributeValue("scale"), "%f %f %f", &scale.X,&scale.Y,&scale.Z);
+				if (xml->getAttributeValue("occlusion_type") != NULL && (strcmp(xml->getAttributeValue("occlusion_type"), "octree") == 0))
+				{
+					node = m_scene_manager->addOctreeSceneNode(model);
+				}
+				else
+				{
+					if (xml->getAttributeValue("position"))
+						sscanf(xml->getAttributeValue("position"), "%f %f %f", &pos.X,&pos.Y,&pos.Z);
+					if (xml->getAttributeValue("rotation"))
+						sscanf(xml->getAttributeValue("rotation"), "%f %f %f", &rot.X,&rot.Y,&rot.Z);
+					if (xml->getAttributeValue("scale"))
+						sscanf(xml->getAttributeValue("scale"), "%f %f %f", &scale.X,&scale.Y,&scale.Z);
 
-				IMeshSceneNode * node = m_scene_manager->addMeshSceneNode(model,0,-1,pos, rot, scale);
+					node = m_scene_manager->addMeshSceneNode(model,0,-1,pos, rot, scale);
+				}
+
+				if (xml->getAttributeValue("map_tiling") != NULL)
+				{
+					sscanf(xml->getAttributeValue("map_tiling"), "%f %f", &scale.X,&scale.Y);
+
+					node->getMaterial(0).getTextureMatrix(0).setTextureScale(scale.X, scale.Y);
+				}
+
+				node->setMaterialFlag(video::EMF_TEXTURE_WRAP, false);
+
+				if (strcmp(xml->getAttributeValue("lighting"), "false") == 0)
+					node->setMaterialFlag(video::EMF_LIGHTING, false);
+				else
+					node->setMaterialFlag(video::EMF_LIGHTING, true);
+
 				node->setName(xml->getAttributeValue("name"));
 				if (diffuse_map)
 					node->setMaterialTexture(0, diffuse_map);
