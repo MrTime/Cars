@@ -42,6 +42,8 @@ CGUI::CGUI(irr::IrrlichtDevice* device)
 
 	m_gui_label = m_guienv->addStaticText(L"", rect<irr::s32>(10, 10, 210, 40));
 
+	m_fps_label = m_guienv->addStaticText(L"", rect<irr::s32>(300, 10, 350, 40));
+
 	hideAll();
 }
 

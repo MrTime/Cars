@@ -22,7 +22,14 @@ class CGUI {
 public:
 	//! create all gui elements
 	CGUI(irr::IrrlichtDevice* device);
-		
+	
+	//! show FPS in static text
+	void showFPS(irr::u32 fps) {
+		irr::core::stringw str = L"FPS: ";
+		str += fps;
+		m_fps_label->setText(str.c_str());
+	}
+
 	void showMainMenu();
 	void showPauseMenu();
 
@@ -55,6 +62,7 @@ private:
 	irr::io::IFileSystem		*m_fs;
 
 	irr::gui::IGUIStaticText	*m_gui_label;			//! label of current UI
+	irr::gui::IGUIStaticText	*m_fps_label;			//! label with FPS
 
 	irr::gui::IGUIButton		*m_menu_buttons[4];		//! main&pause menu items
 

@@ -9,7 +9,7 @@ using namespace core;
 using namespace gui;
 
 
-CGameContext::CGameContext(irr::IrrlichtDevice * device) : m_device(device)
+CGameContext::CGameContext(irr::IrrlichtDevice * device) : m_device(device), m_player_car(NULL)
 {
 	for (u32 i = 0; i < KEY_KEY_CODES_COUNT; ++i)
 		m_key_is_down[i] = false;
@@ -56,10 +56,15 @@ void CGameContext::gameStep()
 		m_gui->drawAll();
 
 	m_driver->endScene();
+
+	m_gui->showFPS(m_driver->getFPS());
 }
 
 void CGameContext::startGame(const irr::io::path &level, const irr::io::path &car)
 {
+	if (m_player_car)
+		m_player_car->drop();
+
 	m_world->loadScene(level);	
 	m_player_car = m_world->createCar(car, vector3df(0.0f, 2.0f, 0.0f));
 	m_world->startSimulation();
