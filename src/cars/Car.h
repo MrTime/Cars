@@ -12,7 +12,7 @@ class CWorld;
 *	Vehicle.
 *	Represents car.\ Consist of  Contain main mesh and texture for clean and damage state.\
 */
-class CCar
+class CCar : public irr::IReferenceCounted
 {
 	irr::core::stringc			m_name;
 	CWorld						*m_world;

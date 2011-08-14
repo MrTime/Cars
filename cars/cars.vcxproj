@@ -86,11 +86,15 @@
   <ItemGroup>
     <ClCompile Include="..\src\cars\Car.cpp" />
     <ClCompile Include="..\src\cars\car_test.cpp" />
+    <ClCompile Include="..\src\cars\GameContext.cpp" />
+    <ClCompile Include="..\src\cars\GUI.cpp" />
     <ClCompile Include="..\src\cars\PhysicAnimator.cpp" />
     <ClCompile Include="..\src\cars\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\cars\Car.h" />
+    <ClInclude Include="..\src\cars\GameContext.h" />
+    <ClInclude Include="..\src\cars\GUI.h" />
     <ClInclude Include="..\src\cars\PhysicAnimator.h" />
     <ClInclude Include="..\src\cars\World.h" />
   </ItemGroup>

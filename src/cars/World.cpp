@@ -10,6 +10,9 @@ using namespace irr::io;
 using namespace scene;
 using namespace core;
 
+const irr::io::path	c_models_dir = "./models/";
+const irr::io::path	c_textures_dir = "./textures/";
+
 /**
 *	Perform computing physics
 */
@@ -80,7 +83,8 @@ CWorld* CWorld::create(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * 
 	return (m_instance ? m_instance : (m_instance = new CWorld(smgr, fs)));
 }
 
-CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_scene_manager(smgr), m_file_system(fs)
+CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) 
+	: m_scene_manager(smgr), m_file_system(fs), m_running(false)
 {
 	video::IVideoDriver * driver = smgr->getVideoDriver();
 
@@ -96,12 +100,12 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 	sun->setLightType(video::ELT_DIRECTIONAL);
 
 	// setup skybox
-	scene::ISceneNode * skybox = smgr->addSkyBoxSceneNode(driver->getTexture("../media/irrlicht2_up.jpg"),
-														  driver->getTexture("../media/irrlicht2_dn.jpg"),
-														  driver->getTexture("../media/irrlicht2_lf.jpg"),
-														  driver->getTexture("../media/irrlicht2_rt.jpg"),
-														  driver->getTexture("../media/irrlicht2_ft.jpg"),
-														  driver->getTexture("../media/irrlicht2_bk.jpg"));
+	scene::ISceneNode * skybox = smgr->addSkyBoxSceneNode(driver->getTexture(c_textures_dir + "irrlicht2_up.jpg"),
+														  driver->getTexture(c_textures_dir + "irrlicht2_dn.jpg"),
+														  driver->getTexture(c_textures_dir + "irrlicht2_lf.jpg"),
+														  driver->getTexture(c_textures_dir + "irrlicht2_rt.jpg"),
+														  driver->getTexture(c_textures_dir + "irrlicht2_ft.jpg"),
+														  driver->getTexture(c_textures_dir + "irrlicht2_bk.jpg"));
 
 	// create ground
 	scene::IAnimatedMesh * ground_mesh = smgr->addHillPlaneMesh("ground", core::dimension2d<f32>(50.0f, 50.0f), 
@@ -137,10 +141,6 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs) : m_
 
 CWorld::~CWorld(void)
 {
-	// clean cars
-	//while (!m_cars.empty())
-	//	delete *(m_cars.begin());
-
 	// clear ODE
 	dJointGroupDestroy(m_contactgroup);
 	dSpaceDestroy(m_space);
@@ -194,7 +194,7 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 	}
 }
 
-CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &position,const irr::core::vector3df &rotation)
+CCar* CWorld::createCar(const irr::io::path &path,const irr::core::vector3df &position,const irr::core::vector3df &rotation)
 {
 	float mass;
 	core::vector3df node_position;
@@ -209,7 +209,6 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 		return false;
 
 	// get directory of file, this will be used during loading resources from that file
-	irr::io::path directory =  path.subString(0, path.findLastChar("/",1)+1);
 	irr::io::path dae_path, dae_base;
 
 	// create new car object
@@ -222,7 +221,7 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 		{
 			if (strcmp(xml->getNodeName(), "collada") == 0)
 			{
-				dae_path = m_file_system->getAbsolutePath(directory + xml->getAttributeValue("path"));
+				dae_path = m_file_system->getAbsolutePath(c_models_dir + xml->getAttributeValue("path"));
 				dae_base = dae_path + "#geom-";
 
 				m_scene_manager->getMesh(dae_path);
@@ -231,7 +230,7 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 			{
 				// load clean car
 				scene::IMesh * clean_model = cache->getMeshByName(dae_base + xml->getAttributeValue("model"));
-				video::ITexture * clean_diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
+				video::ITexture * clean_diffuse_map = driver->getTexture(c_textures_dir + xml->getAttributeValue("diffuse_map"));
 
 				sscanf(xml->getAttributeValue("position"), "%f %f %f", &node_position.X, &node_position.Y, &node_position.Z);
 
@@ -248,7 +247,7 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 			{
 				// load damaged car
 				scene::IMesh * damaged_model = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("model"));
-				video::ITexture * damaged_diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
+				video::ITexture * damaged_diffuse_map = driver->getTexture(c_textures_dir + xml->getAttributeValue("diffuse_map"));
 
 				car->setDamagedChassis(damaged_model, damaged_diffuse_map);
 			}
@@ -259,7 +258,7 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 				// we give model for front and back wheels (left or right doen't matter), but they must be poses in right place
 				// according the car
 				scene::IMesh *wheel = m_scene_manager->getMesh(dae_base + xml->getAttributeValue("model"));
-				video::ITexture *wheel_diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
+				video::ITexture *wheel_diffuse_map = driver->getTexture(c_textures_dir + xml->getAttributeValue("diffuse_map"));
 
 				sscanf(xml->getAttributeValue("mass"), "%f", &mass);
 
@@ -285,15 +284,14 @@ CCar* CWorld::addCar(const irr::io::path &path,const irr::core::vector3df &posit
 	car->setPosition(position);
 	car->setRotation(rotation);
 
-	// add to car list
-	if (car)
-		m_cars.push_back(car);
-
 	return car;
 }
 
 void CWorld::animate(float time)
 {
+	if (!m_running)
+		return;
+
 	dSpaceCollide(m_space, 0, &collusionCallback);
 	dWorldStep(m_world, time);
 	dJointGroupEmpty(m_contactgroup);
@@ -392,7 +390,6 @@ bool CWorld::loadScene(const irr::io::path &path)
 		return false;
 
 	// get directory of file, this will be used during loading resources from that file
-	irr::io::path directory =  path.subString(0, path.findLastChar("/",1)+1);
 	irr::io::path dae_path, dae_base;
 
 	// read xml elements
@@ -402,10 +399,15 @@ bool CWorld::loadScene(const irr::io::path &path)
 		{
 			if (strcmp(xml->getNodeName(), "collada") == 0)
 			{
-				dae_path = m_file_system->getAbsolutePath(directory + xml->getAttributeValue("path"));
+				dae_path = m_file_system->getAbsolutePath(c_models_dir + xml->getAttributeValue("path"));
 				dae_base = dae_path + "#geom-";
 
 				m_scene_manager->getMesh(dae_path);
+			}
+			else if (strcmp(xml->getNodeName(), "camera") == 0)
+			{
+				sscanf(xml->getAttributeValue("position"), "%f %f %f", &m_default_camera_pos.X, &m_default_camera_pos.Y, &m_default_camera_pos.Z);
+				sscanf(xml->getAttributeValue("target"), "%f %f %f", &m_default_camera_target.X, &m_default_camera_target.Y, &m_default_camera_target.Z);
 			}
 			else
 			if (strcmp(xml->getNodeName(), "node") == 0)
@@ -416,7 +418,7 @@ bool CWorld::loadScene(const irr::io::path &path)
 				video::ITexture * diffuse_map = NULL;
 				
 				if (xml->getAttributeValue("diffuse_map"))
-					diffuse_map = driver->getTexture(directory + xml->getAttributeValue("diffuse_map"));
+					diffuse_map = driver->getTexture(c_textures_dir + xml->getAttributeValue("diffuse_map"));
 				
 				// load collusion model
 				if (xml->getAttributeValue("collusion_model"))

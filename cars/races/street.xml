@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <world>
-  <collada path="street.dae"/>
+  <collada path="../models/street.dae"/>
+  
+  <camera position="-33.463 14.23 -52.148"
+          target="-10.354 3.052 -8.138"/>
+
+  <car_start pos="0.0 1.0 0.0" 
+             rotation="0.0 0.0 0.0"/>
+  
   <node  name="Road" 
          model="road"
          occlusion_type="octree"
-         diffuse_map="texture_00001.psd"
+         diffuse_map="general_map.png"
          geom="trimesh"
          lighting="false"/>
 
   <node  name="Border"
          model="border"
          occlusion_type="octree"
-         diffuse_map="texture_00001.psd" 
+         diffuse_map="general_map.png" 
          geom="trimesh"
          lighting="false"/>
   

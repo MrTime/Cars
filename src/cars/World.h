@@ -7,7 +7,7 @@ class CCar;
 /**
 *	World Singleton.
 */
-class CWorld
+class CWorld : public irr::IReferenceCounted
 {
 private:
 	static CWorld * m_instance;
@@ -20,9 +20,15 @@ private:
 	dJointGroupID				m_contactgroup;
 	dGeomID						m_ground;
 
-	irr::core::list<CCar*>		m_cars;
-
 	irr::s32					m_ground_material;
+
+	irr::core::vector3df		m_default_camera_pos,		//! place to move camera during main menu is active
+								m_default_camera_target;	//! place to look camera during main menu is active
+	
+	irr::core::vector3df		m_start_car_pos,			//! place to put player game at start
+								m_start_car_rot;			//! player car start orientation
+
+	bool						m_running;
 
 	//! collusion callback
 	static void collusionCallback(void *data, dGeomID o1, dGeomID o2);
@@ -47,6 +53,9 @@ public:
 	//! destroy world
 	virtual ~CWorld(void);
 
+	void								startSimulation() { m_running = true; }
+	void								stopSimulation() { m_running = false; }
+
 	//! load scene from XML
 	bool								loadScene(const irr::io::path &path);
 
@@ -57,8 +66,12 @@ public:
 	inline dWorldID						getPhysicWorld() { return m_world; }
 	inline dSpaceID						getPhysicSpace() { return m_space; }
 
+	const irr::core::vector3df&			getDefaultCameraPos() const { return m_default_camera_pos; }
+	const irr::core::vector3df&			getDefaultCameraTarget() const { return m_default_camera_target; }
+
+
 	//! load car from file
-	CCar*	addCar(const irr::io::path &path, 
+	CCar*	createCar(const irr::io::path &path, 
 					const irr::core::vector3df &position = irr::core::vector3df(0.0f, 0.0f, 0.0f), 
 					const irr::core::vector3df &rotation = irr::core::vector3df(0.0f, 0.0f, 0.0f));
 
