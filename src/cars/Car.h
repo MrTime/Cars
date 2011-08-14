@@ -17,6 +17,7 @@ class CCar : public irr::IReferenceCounted
 	irr::core::stringc			m_name;
 	CWorld						*m_world;
 
+	irr::scene::ISceneNode		*m_root;
 	irr::scene::IMeshSceneNode	*m_chassis,
 								*m_glass,
 								*m_wheel[4];

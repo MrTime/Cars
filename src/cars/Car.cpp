@@ -42,18 +42,23 @@ CCar::CCar(CWorld *world)
 	memset(m_wheel, 0, sizeof(irr::scene::IMeshSceneNode*)*4);
 
 	p.car_space = dSimpleSpaceCreate(world->getPhysicSpace());
-	dSpaceSetCleanup(p.car_space, 0);
+
+	// to auto remove all geom 
+	dSpaceSetCleanup(p.car_space, 1);
+
+	m_root = world->getSceneManager()->addEmptySceneNode(world->getCarsRoot());
 }
 
 CCar::~CCar(void)
 {
-	// clean ODE resources
-	dGeomDestroy(p.chassis_geom);
+	dSpaceDestroy(p.car_space);
 	for (int i = 0; i < 4; i++)
-		dGeomDestroy(p.wheel_geom[i]);
+		dJointDestroy(p.joint[i]);
+	dBodyDestroy(p.chassis_body);
+	for (int i = 0; i < 4; i++)
+		dBodyDestroy(p.wheel_body[i]);
 
-	// remove from world car list
-
+	m_root->remove();
 }
 
 void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, const irr::core::vector3df &position, float mass)
@@ -65,7 +70,7 @@ void CCar::setChassis(irr::scene::IMesh * mesh, irr::video::ITexture * map, cons
 	g.clean_chassis_texture = map;
 
 	// create scene node
-	m_chassis = smgr->addMeshSceneNode(mesh, smgr->getRootSceneNode(),-1, position);
+	m_chassis = smgr->addMeshSceneNode(mesh, m_root,-1, position);
 
 	m_chassis->setName(m_name + "_chassis");
 	m_chassis->setMaterialTexture(0, map);
@@ -126,7 +131,7 @@ void CCar::addWheel(EWheel id, const irr::core::vector3df &position, float mass)
 	scene::ISceneManager * smgr = m_world->getSceneManager();
 
 	// create scene node
-	m_wheel[id] = smgr->addMeshSceneNode(g.wheel, smgr->getRootSceneNode(), -1, position);
+	m_wheel[id] = smgr->addMeshSceneNode(g.wheel, m_root, -1, position);
 	m_wheel[id]->setMaterialTexture(0, g.wheel_texture);
 	m_wheel[id]->setName(m_name + "_wheel");	
 
@@ -208,7 +213,7 @@ void CCar::animate()
 	m_acceleration = 0.0f;
 	m_steer_acceleration = 0.0f;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		// motor
 		dJointSetHinge2Param (p.joint[i],dParamVel2, m_speed);
