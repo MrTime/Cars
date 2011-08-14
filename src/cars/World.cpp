@@ -90,8 +90,10 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)
 
 	// create ODE world, space and contact joint group
 	m_world = dWorldCreate();
-	m_space = dHashSpaceCreate(0);
 	m_contactgroup = dJointGroupCreate(0);
+	m_space = dHashSpaceCreate(0);
+	dSpaceSetCleanup(m_space, 1);
+
 	dWorldSetGravity(m_world, 0.0f, -0.025f, 0.0f);
 	
 	// setup ambient lighting
@@ -136,6 +138,10 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)
 	CPhysicSceneAnimator * animator = new CPhysicSceneAnimator(this);
 	smgr->getRootSceneNode()->addAnimator(animator);
 	animator->drop();
+
+	// create world root
+	m_world_root = m_scene_manager->addEmptySceneNode();
+	m_cars_root = m_scene_manager->addEmptySceneNode();
 }
 
 
@@ -378,10 +384,23 @@ dGeomID	CWorld::createPhysicMesh(const irr::scene::IMesh * mesh, const vector3df
 	return geom;	
 }
 
+void CWorld::clearScene()
+{
+	m_world_root->removeAll();
+	m_cars_root->removeAll();
+	
+	// remove all geoms
+	dSpaceDestroy(m_space);
+	m_space = dHashSpaceCreate(0);
+}
+
 bool CWorld::loadScene(const irr::io::path &path)
 {
 	video::IVideoDriver *driver = m_scene_manager->getVideoDriver();
 	scene::IMeshCache * cache = m_scene_manager->getMeshCache();	
+
+	// clear
+	clearScene();
 
 	// create xml reader object
 	IrrXMLReader *xml = createIrrXMLReader(path.c_str());
@@ -431,7 +450,7 @@ bool CWorld::loadScene(const irr::io::path &path)
 				
 				if (xml->getAttributeValue("occlusion_type") != NULL && (strcmp(xml->getAttributeValue("occlusion_type"), "octree") == 0))
 				{
-					node = m_scene_manager->addOctreeSceneNode(model);
+					node = m_scene_manager->addOctreeSceneNode(model, m_world_root);
 				}
 				else
 				{
@@ -442,7 +461,7 @@ bool CWorld::loadScene(const irr::io::path &path)
 					if (xml->getAttributeValue("scale"))
 						sscanf(xml->getAttributeValue("scale"), "%f %f %f", &scale.X,&scale.Y,&scale.Z);
 
-					node = m_scene_manager->addMeshSceneNode(model,0,-1,pos, rot, scale);
+					node = m_scene_manager->addMeshSceneNode(model,m_world_root,-1,pos, rot, scale);
 				}
 
 				if (xml->getAttributeValue("map_tiling") != NULL)

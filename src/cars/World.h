@@ -12,8 +12,10 @@ class CWorld : public irr::IReferenceCounted
 private:
 	static CWorld * m_instance;
 
-	irr::scene::ISceneManager * m_scene_manager;
-	irr::io::IFileSystem *		m_file_system;
+	irr::scene::ISceneManager	*m_scene_manager;
+	irr::io::IFileSystem		*m_file_system;
+	irr::scene::ISceneNode		*m_world_root,
+								*m_cars_root;
 
 	dWorldID					m_world;
 	dSpaceID					m_space;
@@ -56,12 +58,18 @@ public:
 	void								startSimulation() { m_running = true; }
 	void								stopSimulation() { m_running = false; }
 
+	//! clear scene without cameras, lights
+	void								clearScene();
+
 	//! load scene from XML
 	bool								loadScene(const irr::io::path &path);
 
 	void								animate(float time);
 
 	inline irr::scene::ISceneManager*	getSceneManager() { return m_scene_manager; }
+
+	inline irr::scene::ISceneNode*		getWorldRoot() { return m_world_root; }
+	inline irr::scene::ISceneNode*		getCarsRoot() { return m_cars_root; }
 
 	inline dWorldID						getPhysicWorld() { return m_world; }
 	inline dSpaceID						getPhysicSpace() { return m_space; }
