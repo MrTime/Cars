@@ -99,14 +99,10 @@
     <ClInclude Include="..\src\cars\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\media\car5.xml">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="..\media\ground.frag" />
     <None Include="..\media\ground.vert" />
-    <None Include="..\media\street.xml">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="cars\car5.xml" />
+    <None Include="races\street.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
