@@ -150,6 +150,9 @@ CWorld::~CWorld(void)
 	dSpaceDestroy(m_space);
 	dWorldDestroy(m_world);
 
+	m_world_root->removeAll();
+	m_cars_root->removeAll();
+
 	m_instance = NULL;
 }
 

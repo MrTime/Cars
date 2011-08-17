@@ -32,12 +32,12 @@ CGameContext::CGameContext(irr::IrrlichtDevice * device) : m_device(device), m_p
 
 CGameContext::~CGameContext(void)
 {
-	delete m_gui;
+	if (m_player_car)
+		m_player_car->drop();
 
-	m_device->drop();
 	m_world->drop();
-
-	//m_player_car->drop();	
+	m_device->drop();
+	delete m_gui;	
 }
 
 void CGameContext::gameStep()
@@ -62,8 +62,7 @@ void CGameContext::gameStep()
 
 void CGameContext::startGame(const irr::io::path &level, const irr::io::path &car)
 {
-	if (m_player_car)
-		m_player_car->drop();
+	clear();
 
 	m_world->loadScene(level);	
 	m_player_car = m_world->createCar(car, vector3df(0.0f, 2.0f, 0.0f));
@@ -79,6 +78,8 @@ void CGameContext::continueGame()
 
 void CGameContext::mainMenu()
 {
+	clear();
+
 	m_camera->setPosition(m_world->getDefaultCameraPos());
 	m_camera->setTarget(m_world->getDefaultCameraTarget());
 	
@@ -210,4 +211,21 @@ bool CGameContext::OnEvent(const SEvent& event)
 	}
 
 	return false;
+}
+
+void CGameContext::clear()
+{
+	if (m_player_car)
+	{
+		m_player_car->drop();
+		m_player_car = 0;
+	}
+
+	irr::core::list<CCar*>::Iterator it = m_npc_cars.begin();
+	while (it != m_npc_cars.end())
+	{
+		(*it)->drop();
+
+		it++;	
+	}
 }

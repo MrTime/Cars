@@ -25,6 +25,8 @@ protected:
 	void animatePlayer(CCar * car);
 	void animateCamera(irr::scene::ICameraSceneNode * camera, CCar * car);
 	
+	void clear();
+
 	virtual bool OnEvent(const irr::SEvent& event);
 
 	virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const {
