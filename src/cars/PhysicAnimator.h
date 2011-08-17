@@ -1,5 +1,5 @@
 #pragma once
-#include <iscenenodeanimator.h>
+#include <ISceneNodeAnimator.h>
 #include <ode/ode.h>
 
 class CPhysicAnimator :
