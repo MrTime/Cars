@@ -296,6 +296,8 @@ void CCar::damage()
 	m_glass->setMaterialTexture(0, g.getDamagedGlassTexture());
 
 	m_damaged = true;
+
+	m_speed = 0.0f;
 }
 
 void CCar::reset()

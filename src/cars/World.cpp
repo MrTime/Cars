@@ -146,25 +146,39 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 	n = dCollide(o1,o2, N, &contact[0].geom, sizeof(dContact));
 	if (n > 0) {
 		for (i = 0; i < n; i++) {
-			contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactSoftERP | dContactSoftCFM | dContactApprox1;
-			contact[i].surface.mu = dInfinity;
-			contact[i].surface.slip1 = 0.1f;
-			contact[i].surface.slip2 = 0.1f;
-			contact[i].surface.soft_erp = 0.5f;
-			contact[i].surface.soft_cfm = 0.3f;
-			dJointID c = dJointCreateContact(m_instance->m_world,m_instance->m_contactgroup,&contact[i]);
-			dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
-
+			CCar *car1 = NULL, 
+				 *car2 = NULL;
+			
 			if (contact[i].geom.g1 != m_instance->m_ground && contact[i].geom.g2 != m_instance->m_ground)
 			{
-				CCar * car1 = (CCar*)dGeomGetData(contact[i].geom.g1);
-				CCar * car2 = (CCar*)dGeomGetData(contact[i].geom.g2);
+				car1 = (CCar*)dGeomGetData(contact[i].geom.g1);
+				car2 = (CCar*)dGeomGetData(contact[i].geom.g2);
 
 				if (car1)
 					car1->damage();
 				if (car2)
 					car2->damage();
 			}
+
+			if (car1 || car2)
+			{
+				contact[i].surface.mode = dContactBounce | dContactSoftERP | dContactSoftCFM;
+				contact[i].surface.bounce = 1.0f;
+			}
+			else
+			{
+				contact[i].surface.mode = dContactSlip1 | dContactSlip2 | dContactSoftERP | dContactSoftCFM | dContactApprox1;
+				contact[i].surface.mu = dInfinity;
+				contact[i].surface.slip1 = 0.1f;
+				contact[i].surface.slip2 = 0.1f;
+			}
+			
+			contact[i].surface.soft_erp = 0.5f;
+			contact[i].surface.soft_cfm = 0.3f;
+			dJointID c = dJointCreateContact(m_instance->m_world,m_instance->m_contactgroup,&contact[i]);
+			dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
+
+			
 		}
 	}
 }
