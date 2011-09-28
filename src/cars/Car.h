@@ -144,6 +144,9 @@ public:
 	//! set car looking as damaged
 	void damage();
 
+	//! set car looking as new
+	void reset();
+
 	void turnRight(irr::s32 angle = 0);
 	void turnLeft(irr::s32 angle = 0);
 

@@ -27,6 +27,8 @@ protected:
 	
 	void clear();
 
+	void resetCar();
+
 	virtual bool OnEvent(const irr::SEvent& event);
 
 	virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const {

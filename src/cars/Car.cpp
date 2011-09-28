@@ -297,3 +297,15 @@ void CCar::damage()
 
 	m_damaged = true;
 }
+
+void CCar::reset()
+{
+	m_chassis->setMesh(g.clean_model);
+
+	m_chassis->setMaterialTexture(0, g.getChassisTexture());
+	m_glass->setMaterialTexture(0, g.getGlassTexture());
+
+	m_damaged = false;
+
+	m_speed = 0.0;
+}

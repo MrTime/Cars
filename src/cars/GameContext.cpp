@@ -122,7 +122,7 @@ void CGameContext::animatePlayer(CCar * car)
 	}
 	if (IsKeyDown(irr::KEY_KEY_R))
 	{
-		car->setPosition(vector3df(0.0f, 2.0f, 0.0f));
+		resetCar();
 	}
 }
 
@@ -228,4 +228,10 @@ void CGameContext::clear()
 
 		it++;	
 	}
+}
+
+void CGameContext::resetCar()
+{
+	m_player_car->reset();
+	m_player_car->setPosition(vector3df(0.0f, 2.0f, 0.0f));
 }
