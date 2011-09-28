@@ -397,6 +397,18 @@ bool CWorld::loadScene(const irr::io::path &path)
 				sscanf(xml->getAttributeValue("target"), "%f %f %f", &m_default_camera_target.X, &m_default_camera_target.Y, &m_default_camera_target.Z);
 			}
 			else
+			if (strcmp(xml->getNodeName(), "car") == 0)
+			{
+				core::vector3df pos(0.0f, 0.0f, 0.0f),
+							    rot(0.0f, 0.0f, 0.0f);
+				
+				if (xml->getAttributeValue("position"))
+					sscanf(xml->getAttributeValue("position"), "%f %f %f", &pos.X,&pos.Y,&pos.Z);
+				if (xml->getAttributeValue("rotation"))
+					sscanf(xml->getAttributeValue("rotation"), "%f %f %f", &rot.X,&rot.Y,&rot.Z);
+					
+				createCar(xml->getAttributeValue("path"), pos, rot);
+			}
 			if (strcmp(xml->getNodeName(), "node") == 0)
 			{
 				// load damaged car

@@ -13,7 +13,8 @@
          occlusion_type="octree"
          diffuse_map="general_map.png"
          geom="trimesh"
-         lighting="false"/>
+         lighting="false"
+         ground="true"/>
 
   <node  name="Border"
          model="border"
@@ -86,4 +87,8 @@
        geom="aabb"
        collusion_model="garage_box"
        lighting="false"/> 
+  
+  <car path="cars/car5.xml"
+       position="-20.12 1.3 1.172"
+       rotation="0.0 -90.0 0.0"/>
 </world>
