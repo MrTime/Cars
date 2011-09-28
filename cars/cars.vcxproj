@@ -100,6 +100,14 @@ copy /y $(SolutionDir)bin\models $(ProjectDir)\models
     <PostBuildEvent>
       <Command>copy /y $(SolutionDir)\external\irrlicht-1.7.2\bin\*.dll $(OutDir)
 copy /y $(SolutionDir)\external\ode-0.11.1\bin\*.dll $(OutDir)
+mkdir $(ProjectDir)cars
+mkdir $(ProjectDir)races
+mkdir $(ProjectDir)textures
+mkdir $(ProjectDir)models
+copy /y $(SolutionDir)bin\cars $(ProjectDir)\cars 
+copy /y $(SolutionDir)bin\races $(ProjectDir)\races 
+copy /y $(SolutionDir)bin\textures $(ProjectDir)\textures
+copy /y $(SolutionDir)bin\models $(ProjectDir)\models 
 </Command>
       <Message>Copy ODE and Irrlich DLLs</Message>
     </PostBuildEvent>
