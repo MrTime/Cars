@@ -109,8 +109,6 @@ copy /y $(SolutionDir)\external\ode-0.11.1\bin\*.dll $(OutDir)</Command>
     <ClInclude Include="..\src\cars\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\media\ground.frag" />
-    <None Include="..\media\ground.vert" />
     <None Include="cars\car5.xml" />
     <None Include="races\street.xml" />
   </ItemGroup>
