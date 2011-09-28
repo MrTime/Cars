@@ -113,25 +113,6 @@ CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)
 															0,0.0f,
 															core::dimension2d<f32>(0.0f,0.0f),
 															core::dimension2d<f32>(1.0f,1.0f));
-
-	//// create shader material
-	//createGroundMaterial();
-
-	//// load road texture
-	//video::ITexture * road_map = driver->getTexture("../media/general_map.png");
-	//
-	//scene::IMeshSceneNode * ground = smgr->addMeshSceneNode(ground_mesh);
-	//ground->setPosition(core::vector3df(0.0f, 0.0f, 0.0f));
-	//ground->setMaterialTexture(0, driver->getTexture("../media/map.png"));
-	//ground->setMaterialTexture(1, driver->getTexture("../media/general_map.png"));
-	//ground->setMaterialFlag(video::EMF_LIGHTING, false);
-	//ground->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false);
-	//ground->setMaterialFlag(video::EMF_BILINEAR_FILTER, false);
-	//ground->setMaterialType((video::E_MATERIAL_TYPE)m_ground_material);
-
-	//// create ground physic model
-	//m_ground = dCreatePlane(m_space, 0,1,0,0);
-
 	// create scene animator
 	CPhysicSceneAnimator * animator = new CPhysicSceneAnimator(this);
 	smgr->getRootSceneNode()->addAnimator(animator);
@@ -156,18 +137,6 @@ CWorld::~CWorld(void)
 	m_instance = NULL;
 }
 
-void CWorld::createGroundMaterial()
-{
-	video::IGPUProgrammingServices * gpu = m_scene_manager->getVideoDriver()->getGPUProgrammingServices();
-
-	GroundShaderCallBack * gc = new GroundShaderCallBack();
-
-	m_ground_material = gpu->addHighLevelShaderMaterialFromFiles(m_file_system->getAbsolutePath("../media/ground.vert"),"main",video::EVST_VS_1_1,
-																 m_file_system->getAbsolutePath("../media/ground.frag"),"main",video::EPST_PS_2_0,
-																 gc, video::EMT_SOLID);
-	gc->drop();
-}
-
 void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 {
 	int i,n;
@@ -185,18 +154,6 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 			contact[i].surface.soft_cfm = 0.3f;
 			dJointID c = dJointCreateContact(m_instance->m_world,m_instance->m_contactgroup,&contact[i]);
 			dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
-
-			/*if (dGeomGetBody(contact[i].geom.g1) != NULL)
-			{
-				CCar * car = (CCar*)dBodyGetData(dGeomGetBody(contact[i].geom.g1));
-				//car->damage();
-			}
-
-			if (dGeomGetData(contact[i].geom.g2) != NULL)
-			{
-				CCar * car = (CCar*)dBodyGetData(dGeomGetBody(contact[i].geom.g2));
-				//car->damage();
-			}*/
 		}
 	}
 }

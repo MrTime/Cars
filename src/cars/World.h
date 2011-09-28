@@ -20,10 +20,7 @@ private:
 	dWorldID					m_world;
 	dSpaceID					m_space;
 	dJointGroupID				m_contactgroup;
-	dGeomID						m_ground;
-
-	irr::s32					m_ground_material;
-
+	
 	irr::core::vector3df		m_default_camera_pos,		//! place to move camera during main menu is active
 								m_default_camera_target;	//! place to look camera during main menu is active
 	
@@ -35,9 +32,6 @@ private:
 	//! collusion callback
 	static void collusionCallback(void *data, dGeomID o1, dGeomID o2);
 	
-	//! Create new shader material
-	void	createGroundMaterial();
-
 	//! load graphic and physic part of scene node
 	void	loadSceneNode(const irr::io::IXMLReader * reader, irr::scene::IMeshCache * cache);
 
