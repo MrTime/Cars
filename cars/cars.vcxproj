@@ -50,6 +50,7 @@
     <IncludePath>$(SolutionDir)\external\ode-0.11.1\include;$(SolutionDir)\external\irrlicht-1.7.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\external\ode-0.11.1\lib\ReleaseSingleDLL;$(SolutionDir)\external\irrlicht-1.7.2\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,7 +90,16 @@ copy /y $(SolutionDir)\external\ode-0.11.1\bin\*.dll $(OutDir)</Command>
     </Link>
     <PostBuildEvent>
       <Command>copy /y $(SolutionDir)\external\irrlicht-1.7.2\bin\*.dll $(OutDir)
-copy /y $(SolutionDir)\external\ode-0.11.1\bin\*.dll $(OutDir)</Command>
+copy /y $(SolutionDir)\external\ode-0.11.1\bin\*.dll $(OutDir)
+mkdir $(OutDir)cars
+mkdir $(OutDir)races
+mkdir $(OutDir)textures
+mkdir $(OutDir)models
+copy /y $(ProjectDir)\cars $(OutDir)\cars
+copy /y $(ProjectDir)\races $(OutDir)\races
+copy /y $(ProjectDir)\textures $(OutDir)\textures
+copy /y $(ProjectDir)\models $(OutDir)\models
+</Command>
       <Message>Copy ODE and Irrlich DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
