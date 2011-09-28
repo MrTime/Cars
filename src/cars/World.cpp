@@ -82,7 +82,7 @@ CWorld* CWorld::create(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * 
 }
 
 CWorld::CWorld(irr::scene::ISceneManager * smgr, irr::io::IFileSystem * fs)
-	: m_scene_manager(smgr), m_file_system(fs), m_running(false)
+	: m_scene_manager(smgr), m_file_system(fs), m_running(false), m_ground(NULL)
 {
 	video::IVideoDriver * driver = smgr->getVideoDriver();
 
@@ -154,6 +154,17 @@ void CWorld::collusionCallback(void *data, dGeomID o1, dGeomID o2)
 			contact[i].surface.soft_cfm = 0.3f;
 			dJointID c = dJointCreateContact(m_instance->m_world,m_instance->m_contactgroup,&contact[i]);
 			dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
+
+			if (contact[i].geom.g1 != m_instance->m_ground && contact[i].geom.g2 != m_instance->m_ground)
+			{
+				CCar * car1 = (CCar*)dGeomGetData(contact[i].geom.g1);
+				CCar * car2 = (CCar*)dGeomGetData(contact[i].geom.g2);
+
+				if (car1)
+					car1->damage();
+				if (car2)
+					car2->damage();
+			}
 		}
 	}
 }
@@ -439,10 +450,15 @@ bool CWorld::loadScene(const irr::io::path &path)
 				if (diffuse_map)
 					node->setMaterialTexture(0, diffuse_map);
 
+				dGeomID static_geom = NULL;
+
 				if (xml->getAttributeValue("geom") && (strcmp(xml->getAttributeValue("geom"), "trimesh") == 0))
-					createPhysicMesh(collusion_model, pos);
+					static_geom = createPhysicMesh(collusion_model, pos);
 				else
-					createPhysicBox(collusion_model, pos);
+					static_geom = createPhysicBox(collusion_model, pos);
+
+				if (xml->getAttributeValue("ground"))
+					m_ground = static_geom;
 			}
 		}
 	}
