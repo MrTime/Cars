@@ -128,6 +128,8 @@ void CGameContext::animatePlayer(CCar * car)
 
 void CGameContext::animateCamera(irr::scene::ICameraSceneNode * camera, CCar * car)
 {
+	if (!car) return;
+
 	const matrix4 &car_transform = car->getChassis()->getAbsoluteTransformation();
 
 	vector3df new_camera_position,
